@@ -8,6 +8,8 @@
 
 #import "ViewController.h"
 
+#import <ReactiveCocoa.h>
+
 @interface ViewController ()
 
 @end
@@ -16,13 +18,30 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+    
+    NSArray *array = [[self asyncSignal] toArray];
+    NSLog(@"toArray -- %@", array);
 }
+
+- (RACSignal *)asyncSignal
+{
+    return [RACSignal createSignal:^RACDisposable *(id<RACSubscriber> subscriber) {
+
+        [subscriber sendNext:@"start"];
+
+        [[RACScheduler scheduler] afterDelay:2 schedule:^{
+            [subscriber sendNext:@"end"];
+            [subscriber sendCompleted];
+        }];
+
+        return nil;
+    }];
+}
+
 
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 
